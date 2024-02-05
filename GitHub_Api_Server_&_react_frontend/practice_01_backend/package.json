@@ -1,0 +1,21 @@
+{
+  "name": "practice_01_backend",
+  "version": "1.0.0",
+  "description": "practicing basics 01 backend",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start":"node server.js"
+  },
+  "keywords": [
+    "github",
+    "api",
+    "handling"
+  ],
+  "author": "vishal chauhan",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2"
+  }
+}
