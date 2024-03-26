@@ -1,0 +1,93 @@
+
+import {nanoid} from "nanoid";
+import urlModel from "../models/urlModel.js";
+
+
+
+const validateUrl = (req,res,next)=>{
+    try{
+        const requrl = req.body.originalUrl;
+        const myUrl = new URL(requrl.startsWith('http')? requrl:`https://${requrl}`);
+        next();
+    }
+    catch(err){
+        console.log('invalid url');
+       
+        res.status(500).json({ message: err.message })
+      
+    }
+}
+
+// searching if url is present
+
+const searchUrl = async (req,res,next)=>{
+    try{
+       
+        const result = await urlModel.findOne({originalUrl:req.body.originalUrl});
+        if(!result){
+            console.log("no previous resul found for this url");
+            next();
+        }
+        else{
+            res.status(200).json({
+                "status":"sucess",
+                "url":`http://${process.env.DOMAIN}:${process.env.PORT}/api/v1/shorturl/${result.id}`
+            })
+        }
+    }
+    catch(err){
+        res.status(500).json({
+            "status":"failed",
+        })
+    }
+}
+
+const createUrl = async ( req, res)=>{
+    try{
+        const originalUrl = req.body.originalUrl;
+        const id = nanoid(5);
+        const clicks = 0;
+        const newUrl = new urlModel({originalUrl,id,clicks});
+        const savedUrl = await newUrl.save();
+        res.status(200).json({
+            "status":"sucess",
+            "url":`http://${process.env.DOMAIN}:${process.env.PORT}/api/v1/shorturl/${id}`
+        })
+        console.log('new short url created');
+        
+        
+    }
+    catch(err){
+        res.status(500).json({ message: err.message });
+    }
+
+}
+
+const checkReqid = (req,res,next)=>{
+    if(!req.params.id){
+        res.status(500).send(
+           'not found'
+        )
+        
+    }
+    else{
+        next();
+    }
+}
+
+const urlClick = async (req,res) =>{
+    try{
+        console.log('clicked');
+        const id = req.params.id;
+        console.log(id);
+        const result = await urlModel.findOne({id:id});
+        await urlModel.updateOne({id:id},{$inc:{clicks:1}})
+        res.redirect(result.originalUrl);
+        console.log(result.originalUrl);
+    }
+    catch(errr){
+        console.log("error while redirection");
+    }
+}
+
+export {validateUrl,searchUrl,createUrl,urlClick,checkReqid}
