@@ -5,6 +5,7 @@ import urlModel from "../models/urlModel.js";
 
 
 const validateUrl = (req,res,next)=>{
+    console.log(`request received ${req.body.originalUrl}`)
     try{
         const requrl = req.body.originalUrl;
         const myUrl = new URL(requrl.startsWith('http')? requrl:`https://${requrl}`);
@@ -13,7 +14,9 @@ const validateUrl = (req,res,next)=>{
     catch(err){
         console.log('invalid url');
        
-        res.status(500).json({ message: err.message })
+        res.status(500).json({
+            "status":"failed",
+        })
       
     }
 }
@@ -30,7 +33,7 @@ const searchUrl = async (req,res,next)=>{
         }
         else{
             res.status(200).json({
-                "status":"sucess",
+                "status":"success",
                 "url":`http://${process.env.DOMAIN}:${process.env.PORT}/api/v1/shorturl/${result.id}`
             })
         }
@@ -50,7 +53,7 @@ const createUrl = async ( req, res)=>{
         const newUrl = new urlModel({originalUrl,id,clicks});
         const savedUrl = await newUrl.save();
         res.status(200).json({
-            "status":"sucess",
+            "status":"success",
             "url":`http://${process.env.DOMAIN}:${process.env.PORT}/api/v1/shorturl/${id}`
         })
         console.log('new short url created');
@@ -58,16 +61,18 @@ const createUrl = async ( req, res)=>{
         
     }
     catch(err){
-        res.status(500).json({ message: err.message });
+        res.status(500).json({
+            "status":"failed",
+        })
     }
 
 }
 
 const checkReqid = (req,res,next)=>{
     if(!req.params.id){
-        res.status(500).send(
-           'not found'
-        )
+        res.status(500).json({
+            "status":"failed",
+        })
         
     }
     else{
